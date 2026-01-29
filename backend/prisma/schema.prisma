@@ -1,0 +1,222 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  PHARMACY_ADMIN
+  SUPER_ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String?
+  role      Role     @default(USER)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  address   String?
+  latitude  Float?
+  longitude Float?
+
+  pharmacy   Pharmacy? // A user might own a pharmacy (if PHARMACY_ADMIN)
+  orders     Order[]
+  savedItems SavedItem[]
+  wallet     Wallet?
+}
+
+model Wallet {
+  id              String   @id @default(uuid())
+  balance         Decimal  @default(0.0)
+  accountReference String? @unique // Monnify reserved account reference
+  accountNumber   String?  @unique
+  bankName        String?
+  accountName     String?
+
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  transactions    WalletTransaction[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+enum TransactionType {
+  DEPOSIT
+  PURCHASE
+  WITHDRAWAL
+}
+
+enum TransactionStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+model WalletTransaction {
+  id          String            @id @default(uuid())
+  amount      Decimal
+  type        TransactionType
+  status      TransactionStatus @default(PENDING)
+  reference   String            @unique // Monnify or internal reference
+  description String?
+
+  walletId    String
+  wallet      Wallet            @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+}
+
+enum ApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  DELETION_REQUESTED
+}
+
+model Pharmacy {
+  id        String   @id @default(uuid())
+  name      String
+  address   String
+  latitude  Float
+  longitude Float
+  phone     String?
+  email     String?
+  licenseNumber String?
+  documents     String? // URLs or description
+  isApproved Boolean @default(false) // Deprecated
+  applicationStatus ApplicationStatus @default(PENDING)
+  deletionReason String?
+  osm_id String? @unique
+  google_place_id String? @unique
+  foursquare_id   String? @unique
+  
+  rating     Float   @default(4.5)
+  ratingCount Int     @default(0)
+  image      String? // URL for pharmacy storefront image
+
+  ownerId   String   @unique
+  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  hospitalId String?
+  hospital   Hospital? @relation(fields: [hospitalId], references: [id])
+
+  drugs     PharmacyDrug[]
+  orders    Order[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Hospital {
+  id        String   @id @default(uuid())
+  name      String
+  address   String
+  latitude  Float
+  longitude Float
+  image     String?  // URL to hospital image
+
+  pharmacies Pharmacy[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Drug {
+  id                   String   @id @default(uuid())
+  name                 String
+  description          String?
+  manufacturer         String?
+  image                String?
+  category            String?  
+  dosageForm          String?  
+  strength            String?  
+  requiresPrescription Boolean  @default(false)
+  
+  avgPrice            Decimal? // Market average price for global savings comparison
+
+  pharmacies   PharmacyDrug[]
+  orderItems   OrderItem[]
+  savedBy      SavedItem[]
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model PharmacyDrug {
+  id         String   @id @default(uuid())
+  price      Decimal
+  inStock    Boolean  @default(true)
+  
+  pharmacyId String
+  pharmacy   Pharmacy @relation(fields: [pharmacyId], references: [id], onDelete: Cascade)
+  
+  drugId     String
+  drug       Drug     @relation(fields: [drugId], references: [id])
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([pharmacyId, drugId])
+}
+
+model Order {
+  id          String      @id @default(uuid())
+  totalAmount Decimal
+  status      OrderStatus @default(PENDING)
+  
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+
+  pharmacyId  String
+  pharmacy    Pharmacy    @relation(fields: [pharmacyId], references: [id], onDelete: Cascade)
+
+  items       OrderItem[]
+
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model OrderItem {
+  id        String  @id @default(uuid())
+  quantity  Int
+  price     Decimal // Price at time of order
+
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  drugId    String
+  drug      Drug    @relation(fields: [drugId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SavedItem {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  drugId    String
+  drug      Drug     @relation(fields: [drugId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, drugId])
+}

@@ -6,7 +6,7 @@ MediFind is a full-stack platform designed to connect users with the best pharma
 
 ## Project Architecture
 
-For any AI agent/IDE exploring this codebase, here is the high-level layout:
+
 
 ### 1. [backend/](file:///media/fortune/30326D63326D2ED2/Medifind/backend) (Express.js API)
 The core logic and data layer.

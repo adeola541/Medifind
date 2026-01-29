@@ -70,7 +70,3 @@ npx expo start # Use 'w' for web or 'a' for android
 ```
 
 ---
-
-## 🛡️ Identity & Access
-- **SUPER_ADMIN**: `admin@medifind.com` / `Admin@123`
-- **PHARMACY_ADMIN**: See `backend/prisma/seed.js` for sample credentials.

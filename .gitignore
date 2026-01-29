@@ -55,3 +55,4 @@ coverage/
 # Secrets folder
 secrets/
 **/secrets/
+secret.md

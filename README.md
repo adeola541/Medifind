@@ -1,10 +1,10 @@
-# 🏥 MediFind: Hyper-Local Pharmacy Aggregator & Price Comparison
+# MediFind: Hyper-Local Pharmacy Aggregator & Price Comparison
 
 MediFind is a full-stack platform designed to connect users with the best pharmacy options based on price, distance, and reliability. This project is architected to handle real-time pharmacy discovery, verified partner data enrichment, and seamless order management.
 
 ---
 
-## 🏗️ Project Architecture
+## Project Architecture
 
 For any AI agent/IDE exploring this codebase, here is the high-level layout:
 
@@ -29,21 +29,21 @@ Administrative interface for pharmacy owners to manage inventory and for super-a
 
 ---
 
-## 🧠 Core Domain Context
+## Core Domain Context
 
-### 📍 Discovery vs. Partners
+### Discovery vs. Partners
 - **Discovery**: Real-time pharmacy locations fetched via **Foursquare Places API**. These are external entities.
 - **Partners**: Pharmacies that have registered on the platform. They have verified stocks, prices, and ratings in our PostgreSQL DB.
 - **The "Enrichment" Flow**: When a user discovery nearby pharmacies, we match their `foursquare_id` against our DB to highlight "Verified Partners" and display their real product pricing.
 
-### ⚖️ Smart Match Algorithm
+### Smart Match Algorithm
 The system ranks results using a weighted score:
 `Score = (Price * 0.5) + (Distance * 0.3) - (Rating * 0.2)`
 This ensures users find the best value, not just the closest or cheapest option.
 
 ---
 
-## 🛠️ Tech Stack & Key Integrations
+## Tech Stack & Key Integrations
 
 - **Infrastructure**: Hosted on **Railway** (Automated Nixpacks builds).
 - **External APIs**:
@@ -53,7 +53,7 @@ This ensures users find the best value, not just the closest or cheapest option.
 
 ---
 
-## 🚀 Development Quick Start
+## Development Quick Start
 
 ### 1. Run the Backend
 ```bash

@@ -66,6 +66,16 @@ export default function AdminProfilePage() {
         try {
             await api.put("/users/profile", payload);
             alert("Profile updated successfully!");
+
+            // Update local storage to reflect changes immediately
+            const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+            const updatedUser = { ...currentUser, name: profile.name, email: profile.email };
+            localStorage.setItem("user", JSON.stringify(updatedUser)); // Persist update
+
+            // Dispatch storage event to notify other components (if they listen) or force a reload if needed
+            // For now, the sidebar will update on next refresh, but this ensures consistency.
+            window.location.reload(); // Force reload to update Sidebar
+
             setProfile(p => ({ ...p, password: "" })); // Clear password field
         } catch (error: any) {
             console.error("Failed to save profile:", error);

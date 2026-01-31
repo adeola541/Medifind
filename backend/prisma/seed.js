@@ -16,30 +16,21 @@ async function main() {
         process.exit(1);
     }
 
-    const existingAdmin = await prisma.user.findUnique({
-        where: { email: superAdminEmail }
+    // Upsert Admin
+    const hashedPassword = await bcrypt.hash(superAdminPassword, 10);
+    await prisma.user.upsert({
+        where: { email: superAdminEmail },
+        update: {},
+        create: {
+            name: 'Super Admin',
+            email: superAdminEmail,
+            password: hashedPassword,
+            role: 'SUPER_ADMIN',
+            isActive: true
+        }
     });
 
-    if (!existingAdmin) {
-        const hashedPassword = await bcrypt.hash(superAdminPassword, 10);
-        await prisma.user.create({
-            data: {
-                name: 'Super Admin',
-                email: superAdminEmail,
-                password: hashedPassword,
-                role: 'SUPER_ADMIN',
-                isActive: true
-            }
-        });
-        console.log(`Super Admin created: ${superAdminEmail}`);
-    } else {
-        console.log('Super Admin already exists.');
-    }
-
-    // 2. Clear existing Hospital Data (Optional: be careful in prod)
-    // await prisma.hospital.deleteMany({}); 
-
-    // 3. Seed Hospitals
+    // 2. Seed Hospitals
     const hospitals = [
         {
             name: 'St. Nicholas Hospital',
@@ -61,55 +52,50 @@ async function main() {
             latitude: 6.5866,
             longitude: 3.3568,
             image: 'https://images.unsplash.com/photo-1516549655169-df83a0833860?auto=format&fit=crop&q=80&w=2000'
+        },
+        {
+            name: 'Primary Health Center Ota',
+            address: '76 Idiroko Rd, Ota, Ogun State',
+            latitude: 6.6905,
+            longitude: 3.2323,
+            image: 'https://plus.unsplash.com/premium_photo-1661281397737-9b5d75b52beb?q=80&w=2938&auto=format&fit=crop'
         }
     ];
 
     for (const h of hospitals) {
-        // Check if hospital already exists by name
-        const existingHospital = await prisma.hospital.findFirst({
-            where: { name: h.name }
+        await prisma.hospital.upsert({
+            where: { name: h.name },
+            update: h,
+            create: h
         });
-
-        if (existingHospital) {
-            console.log(`Hospital already exists: ${h.name}`);
-        } else {
-            await prisma.hospital.create({
-                data: h
-            });
-            console.log(`Seeded Hospital: ${h.name}`);
-        }
+        console.log(`Seeded Hospital: ${h.name}`);
     }
 
-    // 4. Seed Pharmacies (if not exist) associated with users
-    // Creating a mock pharmacy for testing
+    // 3. Seed Pharmacy Admin
     const pharmacyEmail = process.env.PHARMACY_ADMIN_EMAIL || 'pharmacy@alpha.com';
     const pharmacyPassword = process.env.PHARMACY_ADMIN_PASSWORD || 'Pharmacy@123';
+    const pHash = await bcrypt.hash(pharmacyPassword, 10);
 
-    let pharmacyUser = await prisma.user.findUnique({ where: { email: pharmacyEmail } });
+    const pharmacyUser = await prisma.user.upsert({
+        where: { email: pharmacyEmail },
+        update: {},
+        create: {
+            name: 'Alpha Pharmacy Admin',
+            email: pharmacyEmail,
+            password: pHash,
+            role: 'PHARMACY_ADMIN'
+        }
+    });
 
-    if (!pharmacyUser) {
-        pharmacyUser = await prisma.user.create({
-            data: {
-                name: 'Alpha Pharmacy Admin',
-                email: pharmacyEmail,
-                password: await bcrypt.hash(pharmacyPassword, 10),
-                role: 'PHARMACY_ADMIN'
-            }
-        });
-    }
-
+    // 4. Seed Pharmacies
     const stNicholas = await prisma.hospital.findFirst({ where: { name: 'St. Nicholas Hospital' } });
-
     if (stNicholas) {
-        const pharmacy = await prisma.pharmacy.upsert({
+        await prisma.pharmacy.upsert({
             where: { ownerId: pharmacyUser.id },
             update: {
-                hospitalId: stNicholas.id,
-                latitude: 6.4540, // Nearby St Nicholas
-                longitude: 3.3965,
-                rating: 4.8,
-                ratingCount: 1250,
-                image: 'https://images.unsplash.com/photo-1563361411-1b41270830d6?auto=format&fit=crop&q=80&w=2000'
+                // Ensure coordinates are accurate for map testing
+                latitude: 6.4540,
+                longitude: 3.3965
             },
             create: {
                 name: 'Alpha Pharmacy',
@@ -123,78 +109,50 @@ async function main() {
                 image: 'https://images.unsplash.com/photo-1563361411-1b41270830d6?auto=format&fit=crop&q=80&w=2000'
             }
         });
-        console.log(`Seeded Pharmacy: ${pharmacy.name} linked to ${stNicholas.name}`);
     }
 
-    // 5. Seed Drugs and Inventory
+    // 5. Seed Expanded Drugs (Merged list with better images)
     const drugsData = [
-        {
-            name: "Loratadine 10mg",
-            description: "Non-drowsy antihistamine for allergy relief",
-            manufacturer: "Mylan",
-            category: "TABLET",
-            avgPrice: 900,
-            image: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=400"
-        },
-        {
-            name: "Diclofenac Potassium",
-            description: "Non-steroidal anti-inflammatory drug (NSAID) for pain relief",
-            manufacturer: "Novartis",
-            category: "TABLET",
-            avgPrice: 600,
-            image: "https://images.unsplash.com/photo-1471864190281-a93a3070b6de?q=80&w=400"
-        },
-        {
-            name: "Amoxicillin 500mg",
-            description: "Antibiotic used to treat various bacterial infections",
-            manufacturer: "GlaxoSmithKline",
-            category: "CAPSULE",
-            avgPrice: 1200,
-            image: "https://images.unsplash.com/photo-1555633514-abcee6ad93e1?q=80&w=400"
-        },
-        {
-            name: "Piriton (Chlorphenamine)",
-            description: "Effective relief from hayfever and allergy symptoms",
-            manufacturer: "GSK",
-            category: "TABLET",
-            avgPrice: 400,
-            image: "https://images.unsplash.com/photo-1585435557343-3b092031a831?q=80&w=400"
-        },
-        {
-            name: "Paracetamol 500mg",
-            description: "Pain reliever and fever reducer",
-            manufacturer: "Emzor",
-            category: "TABLET",
-            avgPrice: 500,
-            image: "https://images.unsplash.com/photo-1584017947282-23ddc4659a66?q=80&w=400"
-        },
-        {
-            name: "Benylin Syrup",
-            description: "Cough and cold relief",
-            manufacturer: "Benylin",
-            category: "LIQUID",
-            avgPrice: 2200,
-            image: "https://images.unsplash.com/photo-1587370560942-ad2a04eabb6d?q=80&w=400"
-        },
-        {
-            name: "Visine Eye Drops",
-            description: "Relieves red eyes",
-            manufacturer: "Johnson & Johnson",
-            category: "EYE",
-            avgPrice: 2000,
-            image: "https://images.unsplash.com/photo-1550572017-edd951aa8f72?q=80&w=400"
-        }
+        // Original High Quality
+        { name: "Loratadine 10mg", description: "Non-drowsy antihistamine", manufacturer: "Mylan", category: "TABLET", avgPrice: 900, image: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=400" },
+        { name: "Diclofenac Potassium", description: "Pain relief NSAID", manufacturer: "Novartis", category: "TABLET", avgPrice: 600, image: "https://images.unsplash.com/photo-1471864190281-a93a3070b6de?q=80&w=400" },
+        { name: "Amoxicillin 500mg", description: "Antibiotic", manufacturer: "GlaxoSmithKline", category: "CAPSULE", avgPrice: 1200, image: "https://images.unsplash.com/photo-1555633514-abcee6ad93e1?q=80&w=400" },
+        { name: "Piriton (Chlorphenamine)", description: "Allergy relief", manufacturer: "GSK", category: "TABLET", avgPrice: 400, image: "https://images.unsplash.com/photo-1585435557343-3b092031a831?q=80&w=400" },
+        { name: "Paracetamol 500mg", description: "Pain reliever", manufacturer: "Emzor", category: "TABLET", avgPrice: 500, image: "https://images.unsplash.com/photo-1584017947282-23ddc4659a66?q=80&w=400" },
+        { name: "Benylin Syrup", description: "Cough relief", manufacturer: "Benylin", category: "LIQUID", avgPrice: 2200, image: "https://images.unsplash.com/photo-1587370560942-ad2a04eabb6d?q=80&w=400" },
+        { name: "Visine Eye Drops", description: "Red eye relief", manufacturer: "Johnson & Johnson", category: "EYE", avgPrice: 2000, image: "https://images.unsplash.com/photo-1550572017-edd951aa8f72?q=80&w=400" },
+
+        // New Additions (Mapped to Categories for SmartImage or real images)
+        { name: "Ibuprofen 400mg", description: "Anti-inflammatory", manufacturer: "Emzor", category: "TABLET", avgPrice: 500, image: "https://images.unsplash.com/photo-1550572017-edd951aa8f72?q=80&w=400" },
+        { name: "Ciprofloxacin 500mg", description: "Antibiotic", manufacturer: "Fidson", category: "TABLET", avgPrice: 1500, image: "" }, // Will use SmartImage Pill
+        { name: "Metronidazole 400mg", description: "Antibiotic", manufacturer: "May & Baker", category: "TABLET", avgPrice: 800, image: "" },
+        { name: "Omeprazole 20mg", description: "Acid reflux", manufacturer: "Mopson", category: "CAPSULE", avgPrice: 1100, image: "" },
+        { name: "Artemether Lumefantrine", description: "Malaria treatment", manufacturer: "Lonart", category: "TABLET", avgPrice: 2000, image: "" },
+        { name: "Multivite", description: "Multivitamin", manufacturer: "Fidson", category: "TABLET", avgPrice: 1500, image: "https://images.unsplash.com/photo-1574484284008-81dcec289d38?q=80&w=400" },
+        { name: "Vitamin B Complex", description: "Energy support", manufacturer: "Emzor", category: "TABLET", avgPrice: 700, image: "" },
+        { name: "Panadol Extra", description: "Fast pain relief", manufacturer: "GSK", category: "TABLET", avgPrice: 500, image: "" },
+        { name: "Coartem 80/480", description: "Malaria treatment", manufacturer: "Novartis", category: "TABLET", avgPrice: 3000, image: "" },
+        { name: "Tetracycline", description: "Antibiotic", manufacturer: "Juhel", category: "CAPSULE", avgPrice: 400, image: "" },
+        { name: "Ampiclox", description: "Antibiotic", manufacturer: "Beecham", category: "CAPSULE", avgPrice: 1800, image: "" },
+        { name: "Gaviscon", description: "Heartburn relief", manufacturer: "Reckitt", category: "LIQUID", avgPrice: 4500, image: "https://images.unsplash.com/photo-1585435557343-3b092031a831?q=80&w=400" },
+        { name: "Procold", description: "Cold relief", manufacturer: "Chi", category: "TABLET", avgPrice: 300, image: "" }
     ];
+
+    const alphaPharmacy = await prisma.pharmacy.findFirst({ where: { name: 'Alpha Pharmacy' } });
 
     for (const d of drugsData) {
         let drug = await prisma.drug.findFirst({ where: { name: d.name } });
         if (!drug) {
             drug = await prisma.drug.create({ data: d });
             console.log(`Seeded Drug: ${d.name}`);
+        } else {
+            // Update image if existing has placeholder
+            if (d.image && (!drug.image || drug.image.includes('placeholder'))) {
+                await prisma.drug.update({ where: { id: drug.id }, data: { image: d.image, category: d.category } });
+                console.log(`Updated images for: ${d.name}`);
+            }
         }
 
-        // Link to Alpha Pharmacy if exists
-        const alphaPharmacy = await prisma.pharmacy.findFirst({ where: { name: 'Alpha Pharmacy' } });
         if (alphaPharmacy && drug) {
             await prisma.pharmacyDrug.upsert({
                 where: {
@@ -203,15 +161,14 @@ async function main() {
                         drugId: drug.id
                     }
                 },
-                update: {}, // No update needed
+                update: {},
                 create: {
                     pharmacyId: alphaPharmacy.id,
                     drugId: drug.id,
-                    price: 500 + Math.floor(Math.random() * 1000), // Random price 500-1500
+                    price: d.avgPrice,
                     inStock: true
                 }
             });
-            console.log(`Added ${d.name} to Alpha Pharmacy inventory`);
         }
     }
 

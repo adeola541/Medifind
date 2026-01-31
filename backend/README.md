@@ -2,7 +2,7 @@
 
 This is the Node.js/Express backend for the MediFind project. It uses Prisma with PostgreSQL and handles authentication, pharmacy management, and drug inventory.
 
-## Deployment Guide (Railway)
+## 🚀 Deployment Guide (Railway)
 
 This project is optimized for deployment on [Railway](https://railway.app/).
 
@@ -44,7 +44,7 @@ This project is optimized for deployment on [Railway](https://railway.app/).
     ```
 
 ### 3. Database Migrations (Production)
-**Critical Step**: Your deployed application will fail if the database schema works locally but hasn't been applied to the live database.
+⚠️ **Critical Step**: Your deployed application will fail if the database schema works locally but hasn't been applied to the live database.
 
 **To apply your Prisma Schema to the Production Database:**
 
@@ -72,7 +72,7 @@ git commit -m "Update backend"
 railway up
 ```
 
-## Local Development
+## 🛠️ Local Development
 1.  Copy `.env` variables:
     ```bash
     DATABASE_URL="postgresql://user:password@localhost:5432/medifind"

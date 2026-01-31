@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://medifind-production-acdc.up.railway.app/api',
+    baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://glowing-robot-production.up.railway.app/api',
 });
 
 // Add a request interceptor to include the JWT token

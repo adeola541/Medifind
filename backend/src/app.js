@@ -2,38 +2,34 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 
-// CORS Configuration
-app.use(cors({
-    origin: [
-        'https://medifind-dashboard-production.up.railway.app',
-        'https://medifind-api-production.up.railway.app',
-        'https://medifind-app.vercel.app',
-        'http://localhost:3000',
-        'http://localhost:3001'
-    ],
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'x-session-id'],
-    optionsSuccessStatus: 200
-}));
+// Middleware
+const allowedOrigins = [
+    'https://medifind-dashboard-production.up.railway.app'
+];
 
-// Additional CORS headers for preflight
+// CORS Middleware - Manual Implementation for Reliability
 app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', req.headers.origin);
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin, x-session-id');
-    
+    const origin = req.headers.origin;
+    const isLocalhost = origin && (origin.includes('localhost') || origin.includes('127.0.0.1'));
+    const isAllowed = origin && (allowedOrigins.indexOf(origin) !== -1 || isLocalhost);
+
+    if (isAllowed) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    } else {
+        // Allow ANY origin for now to ensure mobile/dev compatibility
+        // In strict production, this would be restricted, but for mobile app direct hits it's often needed
+        res.setHeader('Access-Control-Allow-Origin', origin || '*');
+    }
+
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin, x-session-id');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+
     if (req.method === 'OPTIONS') {
-        return res.sendStatus(200);
+        return res.status(200).end();
     }
     next();
 });
-
-// Explicit OPTIONS handler handled by global middleware
-
-
-
 app.use(require('morgan')('dev')); // Logging
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -44,7 +40,8 @@ app.get('/', (req, res) => {
 });
 
 app.get('/api/health', (req, res) => {
-    res.status(200).json({ status: 'ok', message: 'Service is healthy' });
+    res.setHeader('Content-Type', 'application/json');
+    res.status(200).send(JSON.stringify({ status: 'ok', timestamp: new Date().toISOString() }));
 });
 
 // Routes

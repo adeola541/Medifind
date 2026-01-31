@@ -35,7 +35,7 @@ export default function SmartImage({ uri, category, style, iconSize = 24 }: Smar
         }
     };
 
-    if (!uri || error || uri.includes('placehold.co')) {
+    if (!uri || error || uri.includes('placehold.co') || uri.includes('via.placeholder.com')) {
         return (
             <View style={[styles.fallbackContainer, style]}>
                 {getFallbackIcon()}

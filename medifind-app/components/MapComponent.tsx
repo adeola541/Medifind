@@ -1,7 +1,9 @@
 import React from 'react';
-import { StyleSheet, View, Text, Platform } from 'react-native';
+import { StyleSheet, View, Text, Platform, TouchableOpacity, Linking } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { Colors } from '../constants/Colors';
+import { MapPin, Navigation } from 'lucide-react-native';
+import Constants, { ExecutionEnvironment } from 'expo-constants';
 
 interface MapComponentProps {
     latitude: number;
@@ -17,12 +19,31 @@ interface MapComponentProps {
     height?: number;
 }
 
+const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+
 export default function MapComponent({ latitude, longitude, markers = [], height = 300 }: MapComponentProps) {
+    // Check for Web only
     if (Platform.OS === 'web') {
+        const openInMaps = () => {
+            const url = Platform.select({
+                ios: `maps:0,0?q=${latitude},${longitude}`,
+                android: `geo:0,0?q=${latitude},${longitude}`,
+                web: `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`
+            });
+            if (url) Linking.openURL(url);
+        };
+
         return (
-            <View style={[styles.webPlaceholder, { height }]}>
-                <Text style={styles.webText}>Map View is not supported on Web in this demo.</Text>
-                <Text style={styles.webSubtext}>Visit on Android or iOS to see real-time pharmacy locations.</Text>
+            <View style={[styles.fallbackContainer, { height }]}>
+                <MapPin size={40} color={Colors.primary} />
+                <Text style={styles.fallbackTitle}>Map View</Text>
+                <Text style={styles.fallbackSubtext}>
+                    {markers.length > 0 ? `${markers.length} pharmacies nearby` : 'Your location'}
+                </Text>
+                <TouchableOpacity style={styles.openMapsBtn} onPress={openInMaps}>
+                    <Navigation size={16} color="#FFFFFF" />
+                    <Text style={styles.openMapsText}>Open in Maps</Text>
+                </TouchableOpacity>
             </View>
         );
     }
@@ -39,14 +60,11 @@ export default function MapComponent({ latitude, longitude, markers = [], height
                     longitudeDelta: 0.05,
                 }}
             >
-                {/* User Location Marker */}
                 <Marker
                     coordinate={{ latitude, longitude }}
                     title="Your Location"
                     pinColor={Colors.primary}
                 />
-
-                {/* Pharmacy Markers */}
                 {markers.map((marker) => (
                     <Marker
                         key={marker.id}
@@ -72,24 +90,42 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
     },
-    webPlaceholder: {
+    fallbackContainer: {
         width: '100%',
         backgroundColor: '#F3F4F6',
         borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
         padding: 20,
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
     },
-    webText: {
+    fallbackTitle: {
         fontSize: 16,
         fontWeight: 'bold',
         color: Colors.text,
         textAlign: 'center',
+        marginTop: 12,
     },
-    webSubtext: {
+    fallbackSubtext: {
         fontSize: 12,
         color: Colors.textLight,
         textAlign: 'center',
-        marginTop: 8,
+        marginTop: 4,
+    },
+    openMapsBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: Colors.primary,
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 12,
+        marginTop: 12,
+        gap: 6,
+    },
+    openMapsText: {
+        color: '#FFFFFF',
+        fontSize: 12,
+        fontWeight: 'bold',
     }
 });

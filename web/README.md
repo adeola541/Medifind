@@ -2,12 +2,12 @@
 
 Welcome to the **MediFind Admin Dashboard**. This platform allows Pharmacy Administrators and System Super Admins to manage the MediFind ecosystem efficiently.
 
-## Access the Dashboard
+## 🔗 Access the Dashboard
 **Live URL:** [https://medifind-dashboard-production.up.railway.app/](https://medifind-dashboard-production.up.railway.app/)
 
 ---
 
-## Guide for Pharmacy Admins
+## 🏥 Guide for Pharmacy Admins
 
 As a Pharmacy Admin, you can manage your pharmacy's incoming orders, inventory, and profile details.
 
@@ -33,7 +33,7 @@ Navigate to the **Orders** section to view customer requests.
 
 ---
 
-## Guide for Super Admins
+## 🛡️ Guide for Super Admins
 
 As a Super Admin, you have full oversight of the platform's users and pharmacies.
 
@@ -54,7 +54,7 @@ Navigate to the **User Management** page.
 
 ---
 
-## Developer Guide
+## 🛠️ Developer Guide
 
 ### Tech Stack
 - **Framework**: Next.js 16 (App Router)
@@ -73,7 +73,7 @@ Navigate to the **User Management** page.
     ```
     Access the app at `http://localhost:3000`.
 
-### Deployment (Railway)
+### 🚀 Deployment (Railway)
 This project is configured for **Railway Nixpacks**.
 1.  Ensure `package.json` has `engines` set to `node: 20.x`.
 2.  Deploy via CLI:
@@ -83,5 +83,5 @@ This project is configured for **Railway Nixpacks**.
 
 ---
 
-## Need Help?
+## ❓ Need Help?
 If you encounter any technical issues or need assistance, please contact the development team or file a support ticket.

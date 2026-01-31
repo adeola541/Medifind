@@ -6,6 +6,7 @@ import { ArrowLeft, Star, ShoppingCart, MapPin, Plus, Minus, Heart, ShieldCheck,
 import { StatusBar } from 'expo-status-bar';
 import { searchDrugs, fetchDrugs, saveItem, removeSavedItem, getSavedItems } from '../../services/api';
 import { useCartStore } from '../../store/cartStore';
+import SmartImage from '../../components/SmartImage';
 
 const { width } = Dimensions.get('window');
 
@@ -128,7 +129,7 @@ export default function MedicineDetailsScreen() {
 
     const renderPharmacyItem = ({ item, index }: { item: any, index: number }) => (
         <View key={index} style={[styles.pharmacyCard, index === 0 && styles.featuredPharmacy]}>
-            <Image source={{ uri: item.pharmacyImage || 'https://placehold.co/150x150/png' }} style={styles.pharmacyImage} />
+            <SmartImage uri={item.pharmacyImage} category="PHARMACY" style={styles.pharmacyImage} iconSize={24} />
             <View style={styles.pharmacyInfo}>
                 <View style={styles.pharmacyHeader}>
                     <Text style={styles.pharmacyName}>{item.pharmacyName}</Text>
@@ -222,7 +223,7 @@ export default function MedicineDetailsScreen() {
                 {/* Drug Image Section */}
                 <View style={styles.imageSection}>
                     <View style={styles.imageBackground}>
-                        <Image source={{ uri: drugInfo.image }} style={styles.drugImage} resizeMode="contain" />
+                        <SmartImage uri={drugInfo.image} category={drugInfo.category || 'TABLET'} style={styles.drugImage} iconSize={64} />
                     </View>
                 </View>
 

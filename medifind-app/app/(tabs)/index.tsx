@@ -11,6 +11,8 @@ let Notifications: any = null;
 import { fetchNearbyPharmacies, getOrders, fetchFoursquarePlacesNearby, getEnrichedPharmacies, fetchDrugs, updateUserLocation, geocodeAddress, reverseGeocodeLocation, fetchSuggestions, searchDrugs } from '../../services/api';
 import { useRouter } from 'expo-router';
 import { Platform } from 'react-native';
+import MapComponent from '../../components/MapComponent';
+import SmartImage from '../../components/SmartImage';
 
 const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
 
@@ -135,7 +137,12 @@ export default function HomeScreen() {
         })}
       >
         <View style={{ flexDirection: 'row' }}>
-          <Image source={{ uri: item.image || 'https://placehold.co/150x150/png' }} style={{ width: 80, height: 80, borderRadius: 12, backgroundColor: '#F9FAFB' }} resizeMode="contain" />
+          <SmartImage
+            uri={item.image}
+            category={item.category || 'TABLET'}
+            style={{ width: 80, height: 80, borderRadius: 12 }}
+            iconSize={32}
+          />
           <View style={{ flex: 1, paddingLeft: 16 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Text style={{ fontSize: 16, fontWeight: 'bold', color: Colors.text }}>{item.drugName}</Text>
@@ -647,6 +654,24 @@ export default function HomeScreen() {
                 <Text style={styles.seeAll}>See All</Text>
               </TouchableOpacity>
             </View>
+
+            {locationCoords && (
+              <View style={{ marginBottom: 16 }}>
+                <MapComponent
+                  latitude={locationCoords.coords.latitude}
+                  longitude={locationCoords.coords.longitude}
+                  markers={nearbyPharmacies.map(p => ({
+                    id: p.id,
+                    latitude: p.latitude || p.location?.lat || 0,
+                    longitude: p.longitude || p.location?.lng || 0,
+                    title: p.name,
+                    description: p.address || 'Pharmacy',
+                    isPartner: p.isPartner
+                  }))}
+                  height={200}
+                />
+              </View>
+            )}
             {loading ? (
               <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color={Colors.primary} />
@@ -747,10 +772,11 @@ export default function HomeScreen() {
                       }
                     } as any)}
                   >
-                    <Image
-                      source={{ uri: item.image || 'https://placehold.co/150x150/png' }}
+                    <SmartImage
+                      uri={item.image}
+                      category={item.category || 'TABLET'}
                       style={styles.drugImage}
-                      resizeMode="contain"
+                      iconSize={40}
                     />
                     <Text style={styles.drugName} numberOfLines={1}>{item.name}</Text>
                     <Text style={styles.drugPrice}>

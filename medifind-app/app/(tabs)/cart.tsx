@@ -6,6 +6,7 @@ import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, ChevronRight, Info } from 
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useCartStore } from '../../store/cartStore';
+import SmartImage from '../../components/SmartImage';
 
 export default function CartScreen() {
     const router = useRouter();
@@ -18,7 +19,7 @@ export default function CartScreen() {
     const renderItem = ({ item }: { item: any }) => (
         <View style={styles.cartItem}>
             <View style={styles.itemMain}>
-                <Image source={{ uri: item.image || 'https://placehold.co/150x150/png' }} style={styles.itemImage} resizeMode="contain" />
+                <SmartImage uri={item.image} category={item.category || 'TABLET'} style={styles.itemImage} iconSize={24} />
                 <View style={styles.itemInfo}>
                     <Text style={styles.itemName} numberOfLines={1}>{item.drugName}</Text>
                     <Text style={styles.itemPharmacy} numberOfLines={1}>Sold by {item.pharmacyName}</Text>

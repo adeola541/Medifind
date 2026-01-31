@@ -7,6 +7,8 @@ import { StatusBar } from 'expo-status-bar';
 import { fetchPharmacyById, fetchPharmacyReviews } from '../../services/api';
 import { useCartStore } from '../../store/cartStore';
 import { LinearGradient } from 'expo-linear-gradient';
+import MapComponent from '../../components/MapComponent';
+import SmartImage from '../../components/SmartImage';
 
 const { width } = Dimensions.get('window');
 
@@ -93,10 +95,11 @@ export default function PharmacyDetailsScreen() {
                 params: { lat: pharmacy.latitude, lng: pharmacy.longitude }
             } as any)}
         >
-            <Image
-                source={{ uri: item.drug.image || 'https://placehold.co/150x150/png' }}
+            <SmartImage
+                uri={item.drug.image}
+                category={item.drug.category}
                 style={styles.drugImage}
-                resizeMode="contain"
+                iconSize={32}
             />
             <View style={styles.drugInfo}>
                 <Text style={styles.drugName} numberOfLines={1}>{item.drug.name}</Text>
@@ -176,10 +179,26 @@ export default function PharmacyDetailsScreen() {
                             )}
                         </View>
                         <View style={styles.ratingRow}>
-                            <Star size={18} color="#F59E0B" fill="#F59E0B" />
-                            <Text style={styles.ratingText}>{pharmacy?.rating || '4.5'}</Text>
                             <Text style={styles.ratingCount}>({pharmacy?.ratingCount || reviews.length || '0'} reviews)</Text>
                         </View>
+
+                        {(pharmacy?.latitude || pharmacy?.longitude) && (
+                            <View style={{ marginTop: 16 }}>
+                                <MapComponent
+                                    latitude={pharmacy.latitude}
+                                    longitude={pharmacy.longitude}
+                                    markers={[{
+                                        id: pharmacy.id,
+                                        latitude: pharmacy.latitude,
+                                        longitude: pharmacy.longitude,
+                                        title: pharmacy.name,
+                                        description: pharmacy.address,
+                                        isPartner: pharmacy.isPartner
+                                    }]}
+                                    height={150}
+                                />
+                            </View>
+                        )}
                     </View>
 
                     <View style={styles.detailsList}>

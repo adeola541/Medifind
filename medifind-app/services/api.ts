@@ -4,7 +4,7 @@ import { Platform } from 'react-native';
 
 
 // Production API URL
-const API_URL = 'https://glowing-robot-production.up.railway.app/api';
+const API_URL = 'https://medifind-api-production.up.railway.app/api';
 
 
 // Generate a session ID that persists until app restart
@@ -12,6 +12,7 @@ const SESSION_ID = Math.random().toString(36).substring(7);
 
 const api = axios.create({
     baseURL: API_URL,
+    timeout: 15000, // 15 seconds timeout
     headers: {
         'Content-Type': 'application/json',
         'x-session-id': SESSION_ID

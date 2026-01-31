@@ -5,6 +5,7 @@ import { Colors } from '../../constants/Colors';
 import { ArrowLeft, MapPin, CreditCard, Package, Clock, CheckCircle2, XCircle, AlertCircle, Phone, Mail, ChevronRight } from 'lucide-react-native';
 import { StatusBar } from 'expo-status-bar';
 import { getOrderDetails } from '../../services/api';
+import SmartImage from '../../components/SmartImage';
 
 const { width } = Dimensions.get('window');
 
@@ -99,10 +100,11 @@ export default function OrderDetailsScreen() {
                     <View style={styles.itemsList}>
                         {order.items.map((item: any) => (
                             <View key={item.id} style={styles.itemCard}>
-                                <Image
-                                    source={{ uri: item.drug?.image || 'https://placehold.co/150x150/png' }}
+                                <SmartImage
+                                    uri={item.drug?.image}
+                                    category={item.drug?.category || 'TABLET'}
                                     style={styles.itemImage}
-                                    resizeMode="contain"
+                                    iconSize={24}
                                 />
                                 <View style={styles.itemInfo}>
                                     <Text style={styles.itemName} numberOfLines={1}>{item.drug?.name || 'Unknown Medicine'}</Text>

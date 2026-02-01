@@ -356,9 +356,11 @@ export default function HomeScreen() {
         // Initial orders fetch to seed "lastStatus"
         try {
           const initialOrders = await getOrders();
-          initialOrders.forEach((o: any) => {
-            lastOrderStatuses[o.id] = o.status;
-          });
+          if (Array.isArray(initialOrders)) {
+            initialOrders.forEach((o: any) => {
+              lastOrderStatuses[o.id] = o.status;
+            });
+          }
         } catch (orderError) {
           console.warn('Failed to fetch initial orders:', orderError);
           // Continue without orders - user might not be logged in
@@ -373,28 +375,30 @@ export default function HomeScreen() {
       pollingInterval = setInterval(async () => {
         try {
           const currentOrders = await getOrders();
-          for (const order of currentOrders) {
-            const lastStatus = lastOrderStatuses[order.id];
-            if (lastStatus && lastStatus !== order.status) {
-              // Trigger Notification
-              if (Platform.OS !== 'web' && !(Platform.OS === 'android' && isExpoGo) && Notifications) {
-                try {
-                  await Notifications.scheduleNotificationAsync({
-                    content: {
-                      title: "Order Status Updated! 💊",
-                      body: `Your order #${order.id.slice(0, 8).toUpperCase()} is now ${order.status.toLowerCase()}.`,
-                      data: { orderId: order.id },
-                    },
-                    trigger: null, // show immediately
-                  });
-                } catch (e) {
-                  console.warn('Schedule notification failed:', e);
+          if (Array.isArray(currentOrders)) {
+            for (const order of currentOrders) {
+              const lastStatus = lastOrderStatuses[order.id];
+              if (lastStatus && lastStatus !== order.status) {
+                // Trigger Notification
+                if (Platform.OS !== 'web' && !(Platform.OS === 'android' && isExpoGo) && Notifications) {
+                  try {
+                    await Notifications.scheduleNotificationAsync({
+                      content: {
+                        title: "Order Status Updated! 💊",
+                        body: `Your order #${order.id.slice(0, 8).toUpperCase()} is now ${order.status.toLowerCase()}.`,
+                        data: { orderId: order.id },
+                      },
+                      trigger: null, // show immediately
+                    });
+                  } catch (e) {
+                    console.warn('Schedule notification failed:', e);
+                  }
+                } else {
+                  console.log(`[Web Notification] Order ${order.id} status changed to ${order.status}`);
                 }
-              } else {
-                console.log(`[Web Notification] Order ${order.id} status changed to ${order.status}`);
               }
+              lastOrderStatuses[order.id] = order.status;
             }
-            lastOrderStatuses[order.id] = order.status;
           }
         } catch (e) {
           console.warn('Order polling failed:', e);

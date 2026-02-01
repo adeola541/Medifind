@@ -46,11 +46,12 @@ export default function ProfileScreen() {
                 const orders = await getOrders();
                 const saved = await getSavedItems();
                 setStats({
-                    orders: orders ? orders.length : 0,
-                    saved: saved ? saved.length : 0
+                    orders: Array.isArray(orders) ? orders.length : 0,
+                    saved: Array.isArray(saved) ? saved.length : 0
                 });
             } catch (e) {
                 console.warn('Failed to fetch profile stats:', e);
+                setStats({ orders: 0, saved: 0 });
             }
         };
         fetchStats();

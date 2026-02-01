@@ -132,7 +132,7 @@ export default function MedicineDetailsScreen() {
             <SmartImage uri={item.pharmacyImage} category="PHARMACY" style={styles.pharmacyImage} iconSize={24} />
             <View style={styles.pharmacyInfo}>
                 <View style={styles.pharmacyHeader}>
-                    <Text style={styles.pharmacyName}>{item.pharmacyName}</Text>
+                    <Text style={styles.pharmacyName} numberOfLines={1}>{item.pharmacyName}</Text>
                     {index === 0 && (
                         <View style={styles.bestPriceBadge}>
                             <Text style={styles.bestPriceText}>Best Value</Text>
@@ -594,6 +594,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
         color: Colors.text,
+        flexShrink: 1,
     },
     bestPriceBadge: {
         backgroundColor: Colors.primary,

@@ -68,8 +68,13 @@ export const verifyOrderPayment = async (reference: string, orderId: string) => 
 };
 
 export const getOrders = async () => {
-    const response = await api.get('/orders/me');
-    return response.data;
+    try {
+        const response = await api.get('/orders/me');
+        return Array.isArray(response.data) ? response.data : [];
+    } catch (error) {
+        console.error('getOrders failed:', error);
+        return [];
+    }
 };
 
 export const getOrderDetails = async (id: string) => {
@@ -82,7 +87,7 @@ export const fetchFoursquarePlacesNearby = async (lat: number, lng: number) => {
         const response = await api.get('/pharmacies/discover', {
             params: { lat, lng }
         });
-        return response.data;
+        return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
         console.error('Foursquare Discovery Proxy Failed:', error);
         return [];
@@ -96,7 +101,7 @@ export const getEnrichedPharmacies = async (externalResults: any[]) => {
         const response = await api.get('/pharmacies/search', {
             params: { foursquare_ids: fsqIds.join(',') }
         });
-        return response.data;
+        return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
         console.error('Enrichment Failed:', error);
         return [];
@@ -104,10 +109,15 @@ export const getEnrichedPharmacies = async (externalResults: any[]) => {
 };
 
 export const fetchNearbyPharmacies = async (lat: number, lng: number, radius: number = 10) => {
-    const response = await api.get('/pharmacies/search', {
-        params: { lat, lng, radius }
-    });
-    return response.data;
+    try {
+        const response = await api.get('/pharmacies/search', {
+            params: { lat, lng, radius }
+        });
+        return Array.isArray(response.data) ? response.data : [];
+    } catch (error) {
+        console.error('fetchNearbyPharmacies failed:', error);
+        return [];
+    }
 };
 
 export const fetchPharmacyById = async (id: string) => {
@@ -116,8 +126,13 @@ export const fetchPharmacyById = async (id: string) => {
 };
 
 export const fetchPharmacyReviews = async (id: string) => {
-    const response = await api.get(`/pharmacies/${id}/reviews`);
-    return response.data;
+    try {
+        const response = await api.get(`/pharmacies/${id}/reviews`);
+        return Array.isArray(response.data) ? response.data : [];
+    } catch (error) {
+        console.error('fetchPharmacyReviews failed:', error);
+        return [];
+    }
 };
 
 export const getDrugSuggestions = async (query: string) => {
@@ -126,13 +141,23 @@ export const getDrugSuggestions = async (query: string) => {
 };
 
 export const fetchDrugs = async (params: { search?: string, category?: string }) => {
-    const response = await api.get('/drugs', { params });
-    return response.data;
+    try {
+        const response = await api.get('/drugs', { params });
+        return Array.isArray(response.data) ? response.data : [];
+    } catch (error) {
+        console.error('fetchDrugs failed:', error);
+        return [];
+    }
 };
 
 export const getSavedItems = async () => {
-    const response = await api.get('/users/saved');
-    return response.data;
+    try {
+        const response = await api.get('/users/saved');
+        return Array.isArray(response.data) ? response.data : [];
+    } catch (error) {
+        console.error('getSavedItems failed:', error);
+        return [];
+    }
 };
 
 export const saveItem = async (drugId: string) => {
@@ -161,8 +186,13 @@ export const reverseGeocodeLocation = async (lat: number, lng: number) => {
 };
 
 export const fetchWallet = async () => {
-    const response = await api.get('/wallet');
-    return response.data;
+    try {
+        const response = await api.get('/wallet');
+        return response.data || { balance: '0', transactions: [] };
+    } catch (error) {
+        console.error('fetchWallet failed:', error);
+        return { balance: '0', transactions: [] };
+    }
 };
 
 export const initializeTopUp = async (amount: number) => {

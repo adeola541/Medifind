@@ -51,11 +51,10 @@ export default function MapComponent({ latitude, longitude, markers = [], height
     return (
         <View style={[styles.container, { height }]}>
             <MapView
-                provider={PROVIDER_GOOGLE}
                 style={styles.map}
                 initialRegion={{
-                    latitude,
-                    longitude,
+                    latitude: latitude || 6.5244,
+                    longitude: longitude || 3.3792,
                     latitudeDelta: 0.05,
                     longitudeDelta: 0.05,
                 }}

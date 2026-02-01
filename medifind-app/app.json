@@ -7,20 +7,36 @@
     "icon": "./assets/images/logo-icon.png",
     "scheme": "medifindapp",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "splash": {
       "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#10B981"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.medifind.app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Medifind needs your location to find nearby pharmacies and calculate delivery distances."
+      }
     },
     "android": {
       "package": "com.medifind.app",
+      "versionCode": 2,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo-icon.png",
         "backgroundColor": "#ffffff"
+      },
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "FOREGROUND_SERVICE",
+        "POST_NOTIFICATIONS"
+      ],
+      "config": {
+        "googleMaps": {
+          "apiKey": "PASTE_YOUR_GOOGLE_MAPS_API_KEY_HERE"
+        }
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false

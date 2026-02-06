@@ -115,7 +115,7 @@ export default function ProfileScreen() {
                                         iIndex === group.items.length - 1 && { borderBottomWidth: 0 }
                                     ]}
                                     onPress={() => {
-                                        if (item.route === '/orders' || item.route === '/profile/edit' || item.route === '/wallet') {
+                                        if (item.route === '/orders' || item.route === '/profile/edit' || item.route === '/wallet' || item.route === '/saved') {
                                             router.push(item.route as any);
                                         } else {
                                             alert('Coming soon!');

@@ -130,41 +130,52 @@ export default function MedicineDetailsScreen() {
     const renderPharmacyItem = ({ item, index }: { item: any, index: number }) => (
         <View key={index} style={[styles.pharmacyCard, index === 0 && styles.featuredPharmacy]}>
             <SmartImage uri={item.pharmacyImage} category="PHARMACY" style={styles.pharmacyImage} iconSize={24} />
-            <View style={styles.pharmacyInfo}>
-                <View style={styles.pharmacyHeader}>
-                    <Text style={styles.pharmacyName} numberOfLines={1}>{item.pharmacyName}</Text>
-                    {index === 0 && (
-                        <View style={styles.bestPriceBadge}>
-                            <Text style={styles.bestPriceText}>Best Value</Text>
+
+            <View style={styles.cardContent}>
+                {/* Top Row: Name and Price */}
+                <View style={styles.cardTopRow}>
+                    <View style={styles.nameColumn}>
+                        <View style={styles.nameRow}>
+                            <Text style={styles.pharmacyName} numberOfLines={1}>{item.pharmacyName}</Text>
+                            {index === 0 && (
+                                <View style={styles.bestPriceBadge}>
+                                    <Text style={styles.bestPriceText}>Best Value</Text>
+                                </View>
+                            )}
                         </View>
-                    )}
-                </View>
-                <View style={styles.metaRow}>
-                    <Star size={12} color="#FBBF24" fill="#FBBF24" />
-                    <Text style={styles.ratingText}>{item.rating?.toFixed(1) || '4.5'} ({item.ratingCount || '1.2k'} reviews)</Text>
-                    <View style={styles.dot} />
-                    <Text style={styles.distanceText}>{item.distanceKm ? `${item.distanceKm.toFixed(1)} km away` : '0.5 km'}</Text>
-                </View>
-                <View style={styles.featureRow}>
-                    {item.savingsPercentage > 0 && (
-                        <View style={[styles.featureItem, { backgroundColor: '#F0FDF4', borderColor: '#BBF7D0' }]}>
-                            <Text style={[styles.featureText, { color: '#166534', fontWeight: 'bold' }]}>Save ₦{item.savingsAmount.toLocaleString()}</Text>
+                        <View style={styles.ratingRow}>
+                            <Star size={12} color="#FBBF24" fill="#FBBF24" />
+                            <Text style={styles.ratingText}>{item.rating?.toFixed(1) || '4.5'} ({item.ratingCount || '1.2k'})</Text>
+                            <Text style={styles.dot}>•</Text>
+                            <Text style={styles.distanceText}>{item.distanceKm ? `${item.distanceKm.toFixed(1)} km` : '0.5 km'}</Text>
                         </View>
-                    )}
-                    <View style={styles.featureItem}>
-                        <Truck size={12} color={Colors.primary} />
-                        <Text style={styles.featureText}>30 min</Text>
                     </View>
+
+                    <Text style={styles.priceText}>₦{item.price.toLocaleString()}</Text>
                 </View>
-            </View>
-            <View style={styles.priceAction}>
-                <Text style={styles.priceText}>₦{item.price.toLocaleString()}</Text>
-                <TouchableOpacity
-                    style={styles.addButton}
-                    onPress={() => handleAddToCart(item)}
-                >
-                    <Plus size={16} color="#FFFFFF" strokeWidth={3} />
-                </TouchableOpacity>
+
+                {/* Bottom Row: Badges and Add Button */}
+                <View style={styles.cardBottomRow}>
+                    <View style={styles.badgeGroup}>
+                        <View style={styles.deliveryBadge}>
+                            <Truck size={12} color={Colors.textLight} />
+                            <Text style={styles.deliveryText}>30 min</Text>
+                        </View>
+
+                        {item.savingsPercentage > 0 && (
+                            <View style={styles.savingsPill}>
+                                <Text style={styles.savingsText}>Save ₦{item.savingsAmount.toLocaleString()}</Text>
+                            </View>
+                        )}
+                    </View>
+
+                    <TouchableOpacity
+                        style={styles.addButton}
+                        onPress={() => handleAddToCart(item)}
+                    >
+                        <Plus size={18} color="#FFFFFF" strokeWidth={3} />
+                    </TouchableOpacity>
+                </View>
             </View>
         </View>
     );
@@ -586,14 +597,72 @@ const styles = StyleSheet.create({
         backgroundColor: '#F9FAFB',
         marginRight: 12,
     },
-    pharmacyInfo: {
+    cardContent: {
         flex: 1,
     },
-    pharmacyHeader: {
+    cardTopRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        marginBottom: 8,
+    },
+    nameColumn: {
+        flex: 1,
+        marginRight: 8,
+    },
+    nameRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 6,
+        marginBottom: 4,
     },
+    ratingRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    cardBottomRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-end', // Align bottom to keep add button grounded
+    },
+    badgeGroup: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        flexWrap: 'wrap',
+    },
+    deliveryBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#F3F4F6',
+        paddingVertical: 4,
+        paddingHorizontal: 8,
+        borderRadius: 8,
+        gap: 4,
+    },
+    deliveryText: {
+        fontSize: 11,
+        color: Colors.textLight,
+        fontWeight: '500',
+    },
+    savingsPill: {
+        backgroundColor: '#F0FDF4',
+        paddingVertical: 4,
+        paddingHorizontal: 8,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#DCFCE7',
+    },
+    savingsText: {
+        fontSize: 11,
+        color: '#166534',
+        fontWeight: 'bold',
+    },
+    dot: {
+        fontSize: 12,
+        color: '#D1D5DB',
+        marginHorizontal: 6,
+    },
+    // Keep essential styles
     pharmacyName: {
         fontSize: 16,
         fontWeight: 'bold',
@@ -612,56 +681,19 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: '#FFFFFF',
     },
-    metaRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 8,
-    },
     ratingText: {
         fontSize: 12,
         color: Colors.textLight,
         marginLeft: 4,
     },
-    dot: {
-        width: 3,
-        height: 3,
-        borderRadius: 1.5,
-        backgroundColor: '#D1D5DB',
-        marginHorizontal: 8,
-    },
     distanceText: {
         fontSize: 12,
         color: Colors.textLight,
-    },
-    featureRow: {
-        flexDirection: 'row',
-    },
-    featureItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#FFFFFF',
-        paddingVertical: 4,
-        paddingHorizontal: 8,
-        borderRadius: 6,
-        borderWidth: 1,
-        borderColor: '#E5E7EB',
-    },
-    featureText: {
-        fontSize: 11,
-        color: Colors.textLight,
-        marginLeft: 4,
-        fontWeight: '500',
-    },
-    priceAction: {
-        alignItems: 'flex-end',
-        justifyContent: 'center',
-        paddingLeft: 16,
     },
     priceText: {
         fontSize: 16,
         fontWeight: 'bold',
         color: Colors.primary,
-        marginBottom: 4,
     },
     addButton: {
         backgroundColor: Colors.primary,
@@ -671,14 +703,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         elevation: 2,
-        ...(Platform.OS === 'web' ? {
-            boxShadow: `0px 2px 4px ${Colors.primary}4D`,
-        } : {
-            shadowColor: Colors.primary,
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.2,
-            shadowRadius: 4,
-        }),
+        shadowColor: Colors.primary,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
     },
     noResults: {
         padding: 40,

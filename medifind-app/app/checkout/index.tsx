@@ -127,6 +127,7 @@ export default function CheckoutScreen() {
                 // Updated Strategy: Process them sequentially for Online payment.
 
                 const pharmacyIds = Object.keys(ordersByPharmacy);
+                const feePerLayout = pharmacyIds.length > 0 ? Math.round(deliveryFee / pharmacyIds.length) : 0;
 
                 for (const pid of pharmacyIds) {
                     // Find Name
@@ -136,7 +137,8 @@ export default function CheckoutScreen() {
                         pharmacyId: pid,
                         pharmacyName: pName || 'Simulated Pharmacy',
                         items: ordersByPharmacy[pid],
-                        paymentMethod: 'ONLINE'
+                        paymentMethod: 'ONLINE',
+                        deliveryFee: feePerLayout
                     });
 
 
@@ -153,13 +155,17 @@ export default function CheckoutScreen() {
             } else {
                 // Wallet or Cash
                 const method = paymentMethod === 'wallet' ? 'WALLET' : 'CASH';
-                const promises = Object.keys(ordersByPharmacy).map(pharmacyId => {
+                const pharmacyIds = Object.keys(ordersByPharmacy);
+                const feePerOrder = pharmacyIds.length > 0 ? Math.round(deliveryFee / pharmacyIds.length) : 0;
+
+                const promises = pharmacyIds.map(pharmacyId => {
                     const pName = items.find(i => i.pharmacyId === pharmacyId)?.pharmacyName;
                     return createOrder({
                         pharmacyId,
                         pharmacyName: pName || 'Simulated Pharmacy',
                         items: ordersByPharmacy[pharmacyId],
-                        paymentMethod: method
+                        paymentMethod: method,
+                        deliveryFee: feePerOrder
                     });
                 });
                 const results = await Promise.all(promises);

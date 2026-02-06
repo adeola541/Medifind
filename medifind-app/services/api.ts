@@ -57,7 +57,7 @@ export const validateCart = async (items: any[], lat?: number, lng?: number) => 
     return response.data;
 };
 
-export const createOrder = async (orderData: { pharmacyId: string, pharmacyName?: string, items: any[], paymentMethod?: 'WALLET' | 'ONLINE' | 'CASH' }) => {
+export const createOrder = async (orderData: { pharmacyId: string, pharmacyName?: string, items: any[], paymentMethod?: 'WALLET' | 'ONLINE' | 'CASH', deliveryFee?: number }) => {
     const response = await api.post('/orders', orderData);
     return response.data;
 };

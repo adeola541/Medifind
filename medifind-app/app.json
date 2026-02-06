@@ -2,12 +2,12 @@
   "expo": {
     "name": "Medifind",
     "slug": "Medifind",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/images/logo-icon.png",
     "scheme": "medifindapp",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": false,
+    "newArchEnabled": true,
     "splash": {
       "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
@@ -22,7 +22,7 @@
     },
     "android": {
       "package": "com.medifind.app",
-      "versionCode": 2,
+      "versionCode": 3,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo-icon.png",
         "backgroundColor": "#ffffff"

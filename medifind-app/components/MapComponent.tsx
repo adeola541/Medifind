@@ -1,9 +1,19 @@
 import React from 'react';
 import { StyleSheet, View, Text, Platform, TouchableOpacity, Linking } from 'react-native';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { Colors } from '../constants/Colors';
 import { MapPin, Navigation } from 'lucide-react-native';
-import Constants, { ExecutionEnvironment } from 'expo-constants';
+
+// Conditional import for react-native-maps - only import on native platforms
+let MapView: any;
+let Marker: any;
+let PROVIDER_GOOGLE: any;
+
+if (Platform.OS !== 'web') {
+    const Maps = require('react-native-maps');
+    MapView = Maps.default;
+    Marker = Maps.Marker;
+    PROVIDER_GOOGLE = Maps.PROVIDER_GOOGLE;
+}
 
 interface MapComponentProps {
     latitude: number;
@@ -19,18 +29,12 @@ interface MapComponentProps {
     height?: number;
 }
 
-const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
-
 export default function MapComponent({ latitude, longitude, markers = [], height = 300 }: MapComponentProps) {
     // Check for Web only
     if (Platform.OS === 'web') {
         const openInMaps = () => {
-            const url = Platform.select({
-                ios: `maps:0,0?q=${latitude},${longitude}`,
-                android: `geo:0,0?q=${latitude},${longitude}`,
-                web: `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`
-            });
-            if (url) Linking.openURL(url);
+            const url = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
+            Linking.openURL(url);
         };
 
         return (
@@ -42,12 +46,13 @@ export default function MapComponent({ latitude, longitude, markers = [], height
                 </Text>
                 <TouchableOpacity style={styles.openMapsBtn} onPress={openInMaps}>
                     <Navigation size={16} color="#FFFFFF" />
-                    <Text style={styles.openMapsText}>Open in Maps</Text>
+                    <Text style={styles.openMapsText}>Open in Google Maps</Text>
                 </TouchableOpacity>
             </View>
         );
     }
 
+    // Native platforms (iOS/Android)
     return (
         <View style={[styles.container, { height }]}>
             <MapView

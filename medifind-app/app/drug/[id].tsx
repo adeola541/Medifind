@@ -229,7 +229,7 @@ export default function MedicineDetailsScreen() {
 
                 <View style={styles.detailsSection}>
                     <View style={styles.mainInfo}>
-                        <View>
+                        <View style={{ alignItems: 'center' }}>
                             <Text style={styles.drugName}>{drugInfo.name}</Text>
                             <Text style={styles.pillInfo}>{drugInfo.dosage} • {drugInfo.packSize}</Text>
                         </View>
@@ -379,20 +379,23 @@ const styles = StyleSheet.create({
         marginTop: -32,
     },
     mainInfo: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
         marginBottom: 24,
+        gap: 8,
     },
     drugName: {
         fontSize: 28,
         fontWeight: 'bold',
         color: Colors.text,
+        textAlign: 'center',
     },
     pillInfo: {
         fontSize: 14,
         color: Colors.textLight,
         marginTop: 4,
+        textAlign: 'center',
     },
     verifiedBadge: {
         flexDirection: 'row',
@@ -511,9 +514,10 @@ const styles = StyleSheet.create({
         borderRadius: 20,
     },
     sectionHeading: {
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: 'bold',
         color: Colors.text,
+        marginBottom: 8,
     },
     counter: {
         flexDirection: 'row',
@@ -576,9 +580,9 @@ const styles = StyleSheet.create({
         backgroundColor: '#F0FDF4',
     },
     pharmacyImage: {
-        width: 60,
-        height: 60,
-        borderRadius: 12,
+        width: 50,
+        height: 50,
+        borderRadius: 10,
         backgroundColor: '#F9FAFB',
         marginRight: 12,
     },
@@ -654,26 +658,26 @@ const styles = StyleSheet.create({
         paddingLeft: 16,
     },
     priceText: {
-        fontSize: 20,
+        fontSize: 16,
         fontWeight: 'bold',
         color: Colors.primary,
-        marginBottom: 8,
+        marginBottom: 4,
     },
     addButton: {
         backgroundColor: Colors.primary,
-        width: 44,
-        height: 44,
-        borderRadius: 15,
+        width: 32,
+        height: 32,
+        borderRadius: 10,
         alignItems: 'center',
         justifyContent: 'center',
-        elevation: 4,
+        elevation: 2,
         ...(Platform.OS === 'web' ? {
-            boxShadow: `0px 4px 8px ${Colors.primary}4D`,
+            boxShadow: `0px 2px 4px ${Colors.primary}4D`,
         } : {
             shadowColor: Colors.primary,
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.3,
-            shadowRadius: 8,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.2,
+            shadowRadius: 4,
         }),
     },
     noResults: {
